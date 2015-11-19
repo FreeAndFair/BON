@@ -151,6 +151,7 @@ rev_list(p)
   : rev_list(p) p  { $2 : $1 }
   | {- empty -}    { [] }
 
+-- List of zero or more p.
 list(p)
   : rev_list(p)    { reverse $1 }
 
@@ -158,13 +159,24 @@ rev_list1(p)
   : rev_list1(p) p { $2 : $1 }
   | p              { [$1] }
 
+-- List of one or more p.
 list1(p)
   : rev_list1(p)   { reverse $1 }
 
 snd(p, q) : p q { $2 }
 
-sep1(p,q)
+-- List of one or more p, separated by q.
+sep1(p, q)
   : p list(snd(q,p)) { $1 : $2 }
+
+-- List of one or more p, separated by q, with optional final q.
+sep1f(p, q)
+  : p sepg(p, q) { $1 : $2 }
+
+sepg(p, q)
+  : q p sepg(p, q) { $2 : $3 }
+  | q              { [] }
+  | {- empty -}    { [] }
 
 {-
  ##############################################
@@ -241,7 +253,6 @@ explanation :: { Located String }
 
 indexing :: { Indexing }
   : 'indexing' index_list { MkIndexing $2 (getLoc ($1, $2)) }
-  | 'indexing' index_list ';' { MkIndexing $2 (getLoc ($1, $3)) }
   | 'indexing'
   --{ addParseProblem(MissingElementParseError(getLoc ($1), "indexing entries", "after 'indexing'", False)) }
   { MkIndexing [] (getLoc ($1)) }
@@ -268,7 +279,7 @@ system_name :: { Located String }
 ------------------------------------------------
 
 index_list :: { [IndexClause] }
-  : sep1(index_clause, ';') { $1 } -- TODO: optional final semicolon
+  : sep1f(index_clause, ';') { $1 }
 
 index_clause :: { IndexClause }
   : IDENTIFIER ':' index_term_list
@@ -328,24 +339,21 @@ inherits :: { [ClassName] }
 
 queries :: { [LString] }
   : 'query' query_list { $2 }
-  | 'query' query_list ',' { $2 }
 
 commands :: { [LString] }
   : 'command' command_list { $2 }
-  | 'command' command_list ',' { $2 }
 
 constraints :: { [LString] }
   : 'constraint' constraint_list { rlist $2 }
-  | 'constraint' constraint_list ',' { rlist $2 }
 
 query_list :: { [LString] }
-  : sep1(manifest_textblock, ',') { $1 } -- TODO: optional trailing comma
+  : sep1f(manifest_textblock, ',') { $1 }
 
 command_list :: { [LString] }
-  : sep1(manifest_textblock, ',') { $1 } -- TODO: optional trailing comma
+  : sep1f(manifest_textblock, ',') { $1 }
 
 constraint_list :: { [String] }
-  : sep1(manifest_textblock, ',') { $1 } -- TODO: optional trailing comma
+  : sep1f(manifest_textblock, ',') { $1 }
 
 class_name_list :: { [ClassName] }
   : sep1(class_name, ',') { $1 }
@@ -666,7 +674,7 @@ class_invariant :: { [Expression] }
   : 'invariant' assertion { $2 }
 
 parent_class_list :: { [Type] }
-  : 'inherit' sep1(class_type, ';') opt(';') { $2 }
+  : 'inherit' sep1f(class_type, ';') { $2 }
 {-
 |
   i='inherit'
@@ -817,7 +825,7 @@ type :: { Type }
 -}
 
 assertion :: { [Expression] }
-  : sep1(assertion_clause, ';') opt(';') { $1 }
+  : sep1f(assertion_clause, ';') { $1 }
 
 assertion_clause :: { Expression }
   : boolean_expression { $1 }
@@ -841,7 +849,7 @@ quantifier :: { Quantifier }
   | 'exists'  { EXISTS }
 
 range_expression :: { [VariableRange] }
-  : sep1(variable_range, ';') opt(';') { $1 }
+  : sep1f(variable_range, ';') { $1 }
 
 restriction :: { Expression }
   : 'such_that' boolean_expression { $2 }
