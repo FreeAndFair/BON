@@ -843,7 +843,6 @@ quantification :: { Quantification }
     proposition
   { MkQuantification $1 $2 $3 $4 (getLoc ($1, $>)) }
 
-
 quantifier :: { Quantifier }
   : 'for_all' { FORALL }
   | 'exists'  { EXISTS }
@@ -1092,29 +1091,32 @@ change_prefix  :
 ---}
 
 expression :: { Expression }
-  : lowest_expression { $1 }
+  : expr1 { $1 }
   | quantification { Quantification $1 }
-  | expression '<->'  expression            { BinaryExp Equiv $1 $3 }
-  | expression '->'   expression            { BinaryExp Implies $1 $3 }
-  | expression 'and'  expression            { BinaryExp And $1 $3 }
-  | expression 'or'   expression            { BinaryExp Or $1 $3 }
-  | expression 'xor'  expression            { BinaryExp Xor $1 $3 }
-  | expression '<'    expression            { BinaryExp Lt $1 $3 }
-  | expression '>'    expression            { BinaryExp Gt $1 $3 }
-  | expression '<='   expression            { BinaryExp Le $1 $3 }
-  | expression '>='   expression            { BinaryExp Ge $1 $3 }
-  | expression '='    expression            { BinaryExp Eq $1 $3 }
-  | expression '/='   expression            { BinaryExp Neq $1 $3 }
-  | expression '+'    expression            { BinaryExp Add $1 $3 }
-  | expression '-'    expression            { BinaryExp Sub $1 $3 }
-  | expression '*'    expression            { BinaryExp Mul $1 $3 }
-  | expression '/'    expression            { BinaryExp Div $1 $3 }
-  | expression '//'   expression            { BinaryExp IntDiv $1 $3 }
-  | expression '\\\\' expression            { BinaryExp Mod $1 $3 }
-  | expression '^'    expression            { BinaryExp Pow $1 $3 }
-  | expression ':'    expression            { BinaryExp HasType $1 $3 } -- FIXME "type"
-  | expression 'member_of' expression       { BinaryExp MemberOf $1 $3 }
-  | expression 'not' 'member_of' expression { BinaryExp NotMemberOf $1 $4 }
+
+expr1 :: { Expression }
+  : lowest_expression { $1 }
+  | expr1 '<->'  expr1            { BinaryExp Equiv $1 $3 }
+  | expr1 '->'   expr1            { BinaryExp Implies $1 $3 }
+  | expr1 'and'  expr1            { BinaryExp And $1 $3 }
+  | expr1 'or'   expr1            { BinaryExp Or $1 $3 }
+  | expr1 'xor'  expr1            { BinaryExp Xor $1 $3 }
+  | expr1 '<'    expr1            { BinaryExp Lt $1 $3 }
+  | expr1 '>'    expr1            { BinaryExp Gt $1 $3 }
+  | expr1 '<='   expr1            { BinaryExp Le $1 $3 }
+  | expr1 '>='   expr1            { BinaryExp Ge $1 $3 }
+  | expr1 '='    expr1            { BinaryExp Eq $1 $3 }
+  | expr1 '/='   expr1            { BinaryExp Neq $1 $3 }
+  | expr1 '+'    expr1            { BinaryExp Add $1 $3 }
+  | expr1 '-'    expr1            { BinaryExp Sub $1 $3 }
+  | expr1 '*'    expr1            { BinaryExp Mul $1 $3 }
+  | expr1 '/'    expr1            { BinaryExp Div $1 $3 }
+  | expr1 '//'   expr1            { BinaryExp IntDiv $1 $3 }
+  | expr1 '\\\\' expr1            { BinaryExp Mod $1 $3 }
+  | expr1 '^'    expr1            { BinaryExp Pow $1 $3 }
+  | expr1 ':'    expr1            { BinaryExp HasType $1 $3 } -- FIXME "type"
+  | expr1 'member_of' expr1       { BinaryExp MemberOf $1 $3 }
+  | expr1 'not' 'member_of' expr1 { BinaryExp NotMemberOf $1 $4 }
 
 lowest_expression :: { Expression }
   : constant                               { Constant $1 }
