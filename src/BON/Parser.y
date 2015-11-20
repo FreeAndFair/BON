@@ -1095,7 +1095,8 @@ expression :: { Expression }
   | quantification { Quantification $1 }
 
 expr1 :: { Expression }
-  : lowest_expression { $1 }
+  : unary_expression              { $1 }
+  | constant                      { Constant $1 }
   | expr1 '<->'  expr1            { BinaryExp Equiv $1 $3 }
   | expr1 '->'   expr1            { BinaryExp Implies $1 $3 }
   | expr1 'and'  expr1            { BinaryExp And $1 $3 }
@@ -1118,11 +1119,13 @@ expr1 :: { Expression }
   | expr1 'member_of' expr1       { BinaryExp MemberOf $1 $3 }
   | expr1 'not' 'member_of' expr1 { BinaryExp NotMemberOf $1 $4 }
 
+unary_expression :: { Expression }
+  : lowest_expression      { $1 }
+  | unary unary_expression { UnaryExp $1 $2 (getLoc ($1, $2)) }
+
 lowest_expression :: { Expression }
-  : constant                               { Constant $1 }
+  : unqualified_call                       { UnqualifiedCall $1 }
   | lowest_expression '.' unqualified_call { CallExp $1 $3 }
-  | unqualified_call                       { UnqualifiedCall $1 }
-  | unary lowest_expression                { UnaryExp $1 $2 (getLoc ($1, $2)) }
   | '(' expression ')'                     { $2 }
 
 {---
