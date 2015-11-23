@@ -242,9 +242,9 @@ system_chart :: { ClusterChart }
     opt(indexing)
     opt(explanation)
     opt(part)
-    opt(cluster_entries)
+    list(cluster_entry)
     'end'
-  { MkClusterChart $2 True [] (fromMaybe [] $6) $3 $4 $5 (getLoc ($1, $7)) }
+  { MkClusterChart $2 True [] $6 $3 $4 $5 (getLoc ($1, $7)) }
 
 explanation :: { Located String }
   : 'explanation' manifest_textblock { $2 }
@@ -265,9 +265,6 @@ part :: { Located String }
 
 description :: { Located String }
   : 'description' manifest_textblock { $2 }
-
-cluster_entries :: { [ClusterEntry] }
-  : list1 (cluster_entry) { $1 }
 
 cluster_entry :: { ClusterEntry }
   : 'cluster' cluster_name description
@@ -302,13 +299,10 @@ cluster_chart :: { ClusterChart }
     opt(indexing)
     opt(explanation)
     opt(part)
-    opt(class_entries)
-    opt(cluster_entries)
+    list(class_entry)
+    list(cluster_entry)
     'end'
-  { MkClusterChart $2 (fromMaybe [] $6) (fromMaybe [] $7) $3 $4 $5 (getLoc ($1, $8)) }
-
-class_entries :: { [ClassEntry] }
-  : list1(class_entry) { $1 }
+  { MkClusterChart $2 $6 $7 $3 $4 $5 (getLoc ($1, $8)) }
 
 class_entry :: { ClassEntry }
   : 'class' class_name description { MkClassEntry $2 $3 (getLoc ($1, $3)) }
@@ -380,16 +374,13 @@ event_chart :: { EventChart }
      opt(indexing)
      opt(explanation)
      opt(part)
-     opt(event_entries)
+     list(event_entry)
      'end'
-  { MkEventChart $2 $3 (fromMaybe [] $7) $4 $5 $6 (getLoc ($1, $>)) }
+  { MkEventChart $2 $3 $7 $4 $5 $6 (getLoc ($1, $>)) }
 
 direction :: { Direction }
   : 'incoming' { Incoming }
   | 'outgoing' { Outgoing }
-
-event_entries :: { [EventEntry] }
-  : list1(event_entry) { $1 }
 
 event_entry :: { EventEntry }
   : 'event'
@@ -406,12 +397,9 @@ scenario_chart :: { ScenarioChart }
     opt(indexing)
     opt(explanation)
     opt(part)
-    opt(scenario_entries)
+    list(scenario_entry)
     'end'
-  { MkScenarioChart $2 (fromMaybe [] $6) $3 $4 $5 (getLoc ($1, $>)) }
-
-scenario_entries :: { [ScenarioEntry] }
-  : list1(scenario_entry) { $1 }
+  { MkScenarioChart $2 $6 $3 $4 $5 (getLoc ($1, $>)) }
 
 scenario_entry :: { ScenarioEntry }
   : 'scenario' MANIFEST_STRING description
@@ -425,12 +413,9 @@ creation_chart :: { CreationChart }
     opt(indexing)
     opt(explanation)
     opt(part)
-    opt(creation_entries)
+    list(creation_entry)
     'end'
-  { MkCreationChart $2 (fromMaybe [] $6) $3 $4 $5 (getLoc ($1, $>)) }
-
-creation_entries :: { [CreationEntry] }
-  : list1(creation_entry) { $1 }
+  { MkCreationChart $2 $6 $3 $4 $5 (getLoc ($1, $>)) }
 
 creation_entry :: { CreationEntry }
   : 'creator' class_name 'creates' class_or_cluster_name_list
@@ -443,15 +428,12 @@ creation_entry :: { CreationEntry }
 -}
 
 static_diagram :: { StaticDiagram }
-  : 'static_diagram' opt(extended_id) comment 'component' static_block 'end'
+  : 'static_diagram' opt(extended_id) comment 'component' list(static_component) 'end'
   { MkStaticDiagram $5 $2 $3 (getLoc ($1, $>)) }
 
 extended_id :: { Located String }
   : IDENTIFIER { $1 }
   | INTEGER { fmap show $1 }
-
-static_block :: { [StaticComponent] }
-  : list(static_component) { $1 }
 
 static_component :: { StaticComponent }
   : cluster         { Cluster $1 }
@@ -473,7 +455,7 @@ reused :: { Bool }
   | {- empty -} { False }
 
 cluster_components :: { [StaticComponent] }
-  : 'component' static_block 'end' { $2 }
+  : 'component' list(static_component) 'end' { $2 }
 
 class :: { Class }
   : opt(class_mod)
@@ -647,20 +629,20 @@ class_interface :: { ClassInterface }
 class_interface_start_indexing :: { ClassInterface }
   : indexing
     opt(parent_class_list)
-    opt(features)
+    list(feature_clause)
     opt(class_invariant)
     'end'
-  { MkClassInterface (fromMaybe [] $3) (fromMaybe [] $2) (fromMaybe [] $4) (Just $1) (getLoc ($1, $>)) }
+  { MkClassInterface $3 (fromMaybe [] $2) (fromMaybe [] $4) (Just $1) (getLoc ($1, $>)) }
 
 class_interface_start_inherit :: { ClassInterface }
   : parent_class_list
-    opt(features)
+    list(feature_clause)
     opt(class_invariant)
     'end'
-  { MkClassInterface (fromMaybe [] $2) $1 (fromMaybe [] $3) Nothing (getLoc ($1, $>)) }
+  { MkClassInterface $2 $1 (fromMaybe [] $3) Nothing (getLoc ($1, $>)) }
 
 class_interface_start_features :: { ClassInterface }
-  : features
+  : list1(feature_clause)
     opt(class_invariant)
     'end'
   { MkClassInterface $1 [] (fromMaybe [] $2) Nothing (getLoc ($1, $>)) }
@@ -681,20 +663,14 @@ parent_class_list :: { [Type] }
   { addParseProblem(new MissingElementParseError(getLoc ($i), "class name(s)", "in inherits clause", true)); }
 -}
 
-features :: { [Feature] }
-  : list1(feature_clause) { $1 }
-
 ------------------------------------------------
 
 feature_clause :: { Feature }
   : 'feature'
     opt(selective_export)
     comment
-    feature_specifications
+    list1(feature_specification)
   { MkFeature $4 (fromMaybe [] $2) $3 (getLoc ($1, $>)) }
-
-feature_specifications :: { [FeatureSpecification] }
-  : list1(feature_specification) { $1 }
 
 feature_specification :: { FeatureSpecification }
   : feature_specification_modifier
@@ -702,9 +678,9 @@ feature_specification :: { FeatureSpecification }
     opt(has_type)
     opt(rename_clause)
     comment
-    opt(feature_arguments)
+    list(feature_argument)
     opt(contract_clause)
-  { MkFeatureSpecification $1 $2 (fromMaybe [] $6) $7 $3 $4 $5 (getLoc ($1, $>)) }
+  { MkFeatureSpecification $1 $2 $6 $7 $3 $4 $5 (getLoc ($1, $>)) }
 
 feature_specification_modifier :: { FeatureSpecificationModifier }
   : 'deferred'  { FeatureSpecDEFERRED }
@@ -752,9 +728,6 @@ rename_clause :: { RenameClause }
 renaming :: { RenameClause }
   : '^' class_name '.' feature_name
   { MkRenameClause $2 $4 (getLoc ($1, $>)) }
-
-feature_arguments :: { [FeatureArgument] }
-  : list1(feature_argument) { $1 }
 
 feature_argument :: { [FeatureArgument] }
   : either_arrow identifier_list ':' type { [ MkFeatureArgument i $4 (getLoc ($1, $>)) | i <- $2 ] }
@@ -956,11 +929,8 @@ real_constant :: { Double }
 -}
 
 dynamic_diagram :: { DynamicDiagram }
-  : 'dynamic_diagram' opt(extended_id) comment 'component' opt(dynamic_block) 'end'
-  { MkDynamicDiagram (fromMaybe [] $5) $2 $3 (getLoc ($1, $6)) }
-
-dynamic_block :: { [DynamicComponent] }
-  : list1(dynamic_component) { $1 }
+  : 'dynamic_diagram' opt(extended_id) comment 'component' list(dynamic_component) 'end'
+  { MkDynamicDiagram $5 $2 $3 (getLoc ($1, $6)) }
 
 dynamic_component :: { DynamicComponent }
   : scenario_description { ScenarioDescription $1 }
@@ -972,11 +942,8 @@ dynamic_component :: { DynamicComponent }
 ------------------------------------------------
 
 scenario_description :: { ScenarioDescription }
-  : 'scenario' scenario_name comment 'action' labelled_actions 'end'
+  : 'scenario' scenario_name comment 'action' list1(labelled_action) 'end'
   { MkScenarioDescription $2 $5 $3 (getLoc ($1, $6)) }
-
-labelled_actions :: { [LabelledAction] }
-  : list1(labelled_action) { $1 }
 
 labelled_action :: { LabelledAction }
   : action_label action_description
@@ -1007,7 +974,7 @@ nameless :: { Bool }
   | {- empty -} { False }
 
 group_components :: { [DynamicComponent] }
-  : 'component' dynamic_block 'end' { $2 }
+  : 'component' list1(dynamic_component) 'end' { $2 }
 
 object_stack :: { ObjectStack }
   : 'object_stack' object_name comment
