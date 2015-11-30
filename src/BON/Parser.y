@@ -5,109 +5,112 @@ module BON.Parser where
 
 import BON.Parser.AST
 import BON.Parser.Position
+import BON.Parser.Lexer
 
 }
 
 %token
-  EOF    { }
-  IDENTIFIER { }
-  INTEGER { }
-  CHARACTER_CONSTANT { }
-  MANIFEST_STRING  { }
-  REAL { }
-  comment { }
-  manifest_textblock { }
+  EOF                { Located $$ TEnd }
+  IDENTIFIER         { $$@(Located _ (TIdent _)) }
+  INTEGER            { $$@(Located _ (TNat _)) }
+  CHARACTER_CONSTANT { $$ }
+  MANIFEST_STRING    { $$@(Located _ (TString _)) }
+  REAL               { $$@(Located _ (TReal _ _)) }
+  comment            { $$@(Located _ (TComment _)) }
+  manifest_textblock { $$@(Located _ (TString _)) }
 
-  'Current'          { }
-  'Void'             { }
-  'Result'           { }
-  'action'           { }
-  'and'              { }
-  'class'            { }
-  'class_chart'      { }
-  'client'           { }
-  'cluster'          { }
-  'cluster_chart'    { }
-  'command'          { }
-  'component'        { }
-  'constraint'       { }
-  'creates'          { }
-  'creation_chart'   { }
-  'creator'          { }
-  'deferred'         { }
-  'delta'            { }
-  'description'      { }
-  'dictionary'       { }
-  'dynamic_diagram'  { }
-  'effective'        { }
-  'end'              { }
-  'ensure'           { }
-  'event'            { }
-  'event_chart'      { }
-  'exists'           { }
-  'explanation'      { }
-  'false'            { }
-  'feature'          { }
-  'for_all'          { }
-  'incoming'         { }
-  'indexing'         { }
-  'inherit'          { }
-  'interfaced'       { }
-  'invariant'        { }
-  'involves'         { }
-  'it_holds'         { }
-  'member_of'        { }
-  'nameless'         { }
-  'not'              { }
-  'object'           { }
-  'object_group'     { }
-  'object_stack'     { }
-  'old'              { }
-  'or'               { }
-  'outgoing'         { }
-  'part'             { }
-  'persistent'       { }
-  'query'            { }
-  'redefined'        { }
-  'require'          { }
-  'reused'           { }
-  'root'             { }
-  'scenario'         { }
-  'scenario_chart'   { }
-  'static_diagram'   { }
-  'such_that'        { }
-  'system_chart'     { }
-  'true'             { }
-  'xor'              { }
-  ';'                { }
-  ':'                { }
-  ','                { }
-  '.'                { }
-  '('                { }
-  ')'                { }
-  '['                { }
-  ']'                { }
-  '{'                { }
-  '}'                { }
-  ':{'               { }
-  '<->'              { }
-  '->'               { }
-  '<-'               { }
-  '<'                { }
-  '>'                { }
-  '<='               { }
-  '>='               { }
-  '='                { }
-  '/='               { }
-  '+'                { }
-  '-'                { }
-  '*'                { }
-  '/'                { }
-  '//'               { }
-  '\\\\'             { }
-  '^'                { }
-  '..'               { }
-  '...'              { }
+  'Current'          { Located $$ (TKey "Current") }
+  'Void'             { Located $$ (TKey "Void") }
+  'Result'           { Located $$ (TKey "Result") }
+  'action'           { Located $$ (TKey "action") }
+  'and'              { Located $$ (TKey "and") }
+  'class'            { Located $$ (TKey "class") }
+  'class_chart'      { Located $$ (TKey "class_chart") }
+  'client'           { Located $$ (TKey "client") }
+  'cluster'          { Located $$ (TKey "cluster") }
+  'cluster_chart'    { Located $$ (TKey "cluster_chart") }
+  'command'          { Located $$ (TKey "command") }
+  'component'        { Located $$ (TKey "component") }
+  'constraint'       { Located $$ (TKey "constraint") }
+  'creates'          { Located $$ (TKey "creates") }
+  'creation_chart'   { Located $$ (TKey "creation_chart") }
+  'creator'          { Located $$ (TKey "creator") }
+  'deferred'         { Located $$ (TKey "deferred") }
+  'delta'            { Located $$ (TKey "delta") }
+  'description'      { Located $$ (TKey "description") }
+  'dictionary'       { Located $$ (TKey "dictionary") }
+  'dynamic_diagram'  { Located $$ (TKey "dynamic_diagram") }
+  'effective'        { Located $$ (TKey "effective") }
+  'end'              { Located $$ (TKey "end") }
+  'ensure'           { Located $$ (TKey "ensure") }
+  'event'            { Located $$ (TKey "event") }
+  'event_chart'      { Located $$ (TKey "event_chart") }
+  'exists'           { Located $$ (TKey "exists") }
+  'explanation'      { Located $$ (TKey "explanation") }
+  'false'            { Located $$ (TKey "false") }
+  'feature'          { Located $$ (TKey "feature") }
+  'for_all'          { Located $$ (TKey "for_all") }
+  'incoming'         { Located $$ (TKey "incoming") }
+  'indexing'         { Located $$ (TKey "indexing") }
+  'inherit'          { Located $$ (TKey "inherit") }
+  'interfaced'       { Located $$ (TKey "interfaced") }
+  'invariant'        { Located $$ (TKey "invariant") }
+  'involves'         { Located $$ (TKey "involves") }
+  'it_holds'         { Located $$ (TKey "it_holds") }
+  'member_of'        { Located $$ (TKey "member_of") }
+  'nameless'         { Located $$ (TKey "nameless") }
+  'not'              { Located $$ (TKey "not") }
+  'object'           { Located $$ (TKey "object") }
+  'object_group'     { Located $$ (TKey "object_group") }
+  'object_stack'     { Located $$ (TKey "object_stack") }
+  'old'              { Located $$ (TKey "old") }
+  'or'               { Located $$ (TKey "or") }
+  'outgoing'         { Located $$ (TKey "outgoing") }
+  'part'             { Located $$ (TKey "part") }
+  'persistent'       { Located $$ (TKey "persistent") }
+  'query'            { Located $$ (TKey "query") }
+  'redefined'        { Located $$ (TKey "redefined") }
+  'require'          { Located $$ (TKey "require") }
+  'reused'           { Located $$ (TKey "reused") }
+  'root'             { Located $$ (TKey "root") }
+  'scenario'         { Located $$ (TKey "scenario") }
+  'scenario_chart'   { Located $$ (TKey "scenario_chart") }
+  'static_diagram'   { Located $$ (TKey "static_diagram") }
+  'such_that'        { Located $$ (TKey "such_that") }
+  'system_chart'     { Located $$ (TKey "system_chart") }
+  'true'             { Located $$ (TKey "true") }
+  'xor'              { Located $$ (TKey "xor") }
+  ';'                { Located $$ (TKey ";") }
+  ':'                { Located $$ (TKey ":") }
+  ','                { Located $$ (TKey ",") }
+  '.'                { Located $$ (TKey ".") }
+  '('                { Located $$ (TKey "(") }
+  ')'                { Located $$ (TKey ")") }
+  '['                { Located $$ (TKey "[") }
+  ']'                { Located $$ (TKey "]") }
+  '{'                { Located $$ (TKey "{") }
+  '}'                { Located $$ (TKey "}") }
+  ':{'               { Located $$ (TKey ":{") }
+  '<->'              { Located $$ (TKey "<->") }
+  '->'               { Located $$ (TKey "->") }
+  '<-'               { Located $$ (TKey "<-") }
+  '<'                { Located $$ (TKey "<") }
+  '>'                { Located $$ (TKey ">") }
+  '<='               { Located $$ (TKey "<=") }
+  '>='               { Located $$ (TKey ">=") }
+  '='                { Located $$ (TKey "=") }
+  '/='               { Located $$ (TKey "/=") }
+  '+'                { Located $$ (TKey "+") }
+  '-'                { Located $$ (TKey "-") }
+  '*'                { Located $$ (TKey "*") }
+  '/'                { Located $$ (TKey "/") }
+  '//'               { Located $$ (TKey "//") }
+  '\\\\'             { Located $$ (TKey "\\\\") }
+  '^'                { Located $$ (TKey "^") }
+  '..'               { Located $$ (TKey "..") }
+  '...'              { Located $$ (TKey "...") }
+
+%tokentype { Located Token }
 
 %left '<->'
 %right '->'
