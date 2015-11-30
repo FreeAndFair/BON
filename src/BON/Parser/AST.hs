@@ -1,7 +1,11 @@
 module BON.Parser.AST where
 
+import BON.Parser.Position
+
+type LString = Located String
+
 data BonSourceFile
-  = MkBonSourceFile [SpecificationElement] Indexing Range
+  = MkBonSourceFile [SpecificationElement] (Maybe Indexing) Range
 
 data SpecificationElement
   = InformalChart InformalChart
@@ -27,7 +31,7 @@ data ClassDictionary
     (Maybe String) -- ^ part
 
 data DictionaryEntry
-  = DictionaryEntry ClassName [String] String Location
+  = DictionaryEntry ClassName [String] String Range
 
 data ClusterChart
   = MkClusterChart
@@ -94,7 +98,7 @@ data EventEntry
 data ScenarioChart
   = MkScenarioChart
     String -- ^ system_name
-    [_]
+    [ScenarioEntry]
     (Maybe Indexing)
 
 data ScenarioEntry
@@ -124,7 +128,7 @@ data StaticDiagram
 
 data StaticComponent
   = Cluster Cluster
-  | Clazz Clazz
+  | Class Class
   | StaticRelation StaticRelation
 
 data Cluster
