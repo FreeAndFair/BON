@@ -7,6 +7,8 @@ import BON.Parser.AST
 import BON.Parser.Position
 import BON.Parser.Lexer
 
+import Data.Maybe (fromMaybe)
+
 }
 
 %token
@@ -110,6 +112,7 @@ import BON.Parser.Lexer
   '..'               { Located $$ (TKey "..") }
   '...'              { Located $$ (TKey "...") }
 
+%name prog prog
 %tokentype { Located Token }
 
 %left '<->'
@@ -189,15 +192,15 @@ sepg(p, q)
 
 prog :: { BonSourceFile }
   : bon_specification EOF
-      { MkBonSourceFile ($1.spec_els) null (getLoc $1) }
+      { MkBonSourceFile $1 Nothing (getLoc $1) }
   | indexing bon_specification EOF
-      { MkBonSourceFile ($2.spec_els) $1 (getLoc ($1, $2)) }
+      { MkBonSourceFile $2 (Just $1) (getLoc ($1, $2)) }
   | EOF
       -- { addParseProblem(MissingElementParseError(getLoc $1, "at least one specification entry", "in source file", True)) }
-      { MkBonSourceFile (Constants.NO_SPEC_ELEMS) null (getLoc $1) }
+      { MkBonSourceFile [] Nothing (getLoc $1) }
   | indexing EOF
       -- { addParseProblem(MissingElementParseError(getLoc ($2), "at least one specification entry", "in source file", True)) }
-      { MkBonSourceFile(Constants.NO_SPEC_ELEMS, $1, getLoc ($1.start,$1.stop)) }
+      { MkBonSourceFile [] $1 (getLoc $1) }
 
 {-
 /**********************************************
@@ -234,8 +237,8 @@ class_dictionary :: { ClassDictionary }
   { MkClassDictionary $2 $6 $3 $4 $5 (getLoc ($1, $7)) }
 
 dictionary_entry :: { DictionaryEntry }
-  : 'class' class_name 'cluster' cluster_name_list description
-  { DictionaryEntry ($2.text) (rlist $4) $5 (getLoc ($1, $5)) }
+  : 'class' class_name 'cluster' sep1(cluster_name, ',') description
+  { DictionaryEntry $2 $4 $5 (getLoc ($1, $5)) }
 
 ------------------------------------------------
 
@@ -251,8 +254,10 @@ system_chart :: { ClusterChart }
 
 explanation :: { Located String }
   : 'explanation' manifest_textblock { $2 }
+{-
   | 'explanation'
-  { addParseProblem(MissingElementParseError(getLoc ($e), "explanation text", "after 'explanation'", false)); }
+  { addParseProblem(MissingElementParseError(getLoc $1, "explanation text", "after 'explanation'", False)) }
+-}
 
 indexing :: { Indexing }
   : 'indexing' index_list { MkIndexing $2 (getLoc ($1, $2)) }
@@ -271,10 +276,10 @@ description :: { Located String }
 
 cluster_entry :: { ClusterEntry }
   : 'cluster' cluster_name description
-  { MkClusterEntry ($2.text) ($3.description) (getLoc ($1, $3.stop)) }
+  { MkClusterEntry $2 $3 (getLoc ($1, $3)) }
 
 system_name :: { Located String }
-  : IDENTIFIER { $1.text };
+  : IDENTIFIER { $1 }
 
 ------------------------------------------------
 
@@ -284,8 +289,10 @@ index_list :: { [IndexClause] }
 index_clause :: { IndexClause }
   : IDENTIFIER ':' index_term_list
   { MkIndexClause $1 $3 (getLoc ($1, $3)) }
+{-
   | IDENTIFIER ':'
   { addParseProblem(MissingElementParseError(getLoc ($1), "index term(s)", "in index clause", True)) }
+-}
 
 index_term_list :: { [Located String] }
   : sep1(index_string, ',') { $1 }
@@ -331,8 +338,10 @@ class_chart :: { ClassChart }
 
 inherits :: { [ClassName] }
   : 'inherit' class_name_list { $2 }
+{-
   | 'inherit'
   { addParseProblem(MissingElementParseError(getLoc ($1), "class name(s)", "in inherits clause", True)) }
+-}
 
 queries :: { [LString] }
   : 'query' query_list { $2 }
@@ -341,7 +350,7 @@ commands :: { [LString] }
   : 'command' command_list { $2 }
 
 constraints :: { [LString] }
-  : 'constraint' constraint_list { rlist $2 }
+  : 'constraint' constraint_list { $2 }
 
 query_list :: { [LString] }
   : sep1f(manifest_textblock, ',') { $1 }
@@ -355,9 +364,6 @@ constraint_list :: { [String] }
 class_name_list :: { [ClassName] }
   : sep1(class_name, ',') { $1 }
 
-cluster_name_list :: { [String] }
-  : sep1(cluster_name, ',') { $1 }
-
 class_or_cluster_name_list :: { [String] }
   : sep1(class_or_bracketed_cluster_name, ',') { $1 }
 
@@ -366,7 +372,7 @@ class_or_bracketed_cluster_name :: { String }
   | '(' cluster_name ')' { $2 }
 
 class_name :: { ClassName }
-  : IDENTIFIER { MkClassName (thing $1) (getRange $1) }
+  : IDENTIFIER { $1 }
 
 ------------------------------------------------
 
@@ -838,11 +844,11 @@ variable_range :: { VariableRange }
 
 member_range :: { MemberRange }
   : identifier_list 'member_of' expression
-  { MkMemberRange $1 $3 (getLoc ($1.start,$3.stop)) }
+  { MkMemberRange $1 $3 (getLoc ($1, $3)) }
 
 type_range :: { TypeRange }
   : identifier_list ':' type
-  { MkTypeRange $1 $3 (getLoc ($1.start,$3.stop)) }
+  { MkTypeRange $1 $3 (getLoc ($1, $3)) }
 
 ------------------------------------------------
 
@@ -851,12 +857,11 @@ unqualified_call :: { UnqualifiedCall }
   | IDENTIFIER { MkUnqualifiedCall $1 [] (getLoc $1) }
 
 actual_arguments :: { [Expression] }
-  : '(' expression_list ')' { rlist $2 }
+  : '(' expression_list ')' { $2 }
   | '(' ')' { [] }
 
-expression_list :: { RList Expression }
-  : expression_list ',' expression { RCons $1 $3 }
-  | expression { rsingle $1 }
+expression_list :: { [Expression] }
+  : sep1(expression, ',') { $1 }
 
 ------------------------------------------------
 
@@ -866,7 +871,7 @@ expression_list :: { RList Expression }
 --                 | expression
 --                ;
 
-enumerated_set :: { [EnumerationElement] } 
+enumerated_set :: { [EnumerationElement] }
   : '{' enumeration_list '}' { $2 }
 
 enumeration_list :: { [EnumerationElement] }
@@ -960,10 +965,9 @@ action_description :: { String }
 
 scenario_name :: { String }
   : manifest_textblock { $1 }
-{-
+
 ------------------------------------------------
 
---------}
 object_group :: { ObjectGroup }
   : nameless
     'object_group'
@@ -1286,3 +1290,10 @@ WHITESPACE  :  (' '|'\n'|'\r'|'\t')+ {$channel=HIDDEN;}
             ;
 
 ---------------------- END -----------------------}
+{
+
+happyError :: [Located Token] -> a
+happyError (t : _) = error $ "happyError: " ++ show (srcRange t)
+happyError [] = error "happyError"
+
+}
