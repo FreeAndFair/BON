@@ -1,11 +1,9 @@
 module BON.Parser.AST where
 
-import BON.Parser.Position
-
-type LString = Located String
+data Comment = MkComment [String]
 
 data BonSourceFile
-  = MkBonSourceFile [SpecificationElement] (Maybe Indexing) Range
+  = MkBonSourceFile [SpecificationElement] (Maybe Indexing)
 
 data SpecificationElement
   = InformalChart InformalChart
@@ -31,7 +29,7 @@ data ClassDictionary
     (Maybe String) -- ^ part
 
 data DictionaryEntry
-  = DictionaryEntry ClassName [String] String Range
+  = DictionaryEntry ClassName [String] String
 
 data ClusterChart
   = MkClusterChart
@@ -40,44 +38,39 @@ data ClusterChart
     [ClassEntry] -- ^ class entries (nil for system_chart)
     [ClusterEntry] -- ^ cluster entries
     (Maybe Indexing) -- ^ indexing
-    (Maybe LString) -- ^ explanation
-    (Maybe LString) -- ^ part
-    Range
+    (Maybe String) -- ^ explanation
+    (Maybe String) -- ^ part
 
 data Indexing
-  = MkIndexing [IndexClause] Range
+  = MkIndexing [IndexClause]
 
 data ClusterEntry
   = MkClusterEntry
     String -- ^ cluster_name
     String -- ^ description
-    Range
 
 data IndexClause
   = MkIndexClause
-    LString -- ^ identifier
-    (Located [String]) -- ^ index_term_list
-    Range
+    String -- ^ identifier
+    [String] -- ^ index_term_list
 
 data ClassEntry
   = MkClassEntry
     ClassName
-    LString -- ^ description
-    Range
+    String -- ^ description
 
 data ClassChart
   = MkClassChart
     ClassName -- ^ class_name
     [ClassName] -- ^ inherits
-    [LString] -- ^ queries
-    [LString] -- ^ commands
-    [LString] -- ^ constraints
+    [String] -- ^ queries
+    [String] -- ^ commands
+    [String] -- ^ constraints
     (Maybe Indexing) -- ^ indexing
-    (Maybe LString) -- ^ explanation
-    (Maybe LString) -- ^ part
-    Range
+    (Maybe String) -- ^ explanation
+    (Maybe String) -- ^ part
 
-type ClassName = Located String
+type ClassName = String
 
 data EventChart
   = MkEventChart
@@ -87,44 +80,45 @@ data EventChart
     (Maybe Indexing)
     (Maybe String) -- ^ explanation
     (Maybe String) -- ^ part
-    Range
 
 data Direction = Incoming | Outgoing
 
 data EventEntry
   = MkEventEntry
-    String -- ^ description
+    String -- ^ 'event' description
+    [String] -- ^ 'involves' class_or_cluster_name_list
 
 data ScenarioChart
   = MkScenarioChart
     String -- ^ system_name
     [ScenarioEntry]
     (Maybe Indexing)
+    (Maybe String) -- ^ explanation
+    (Maybe String) -- ^ part
 
 data ScenarioEntry
   = MkScenarioEntry
     String -- ^ manifest_string
     String -- ^ description
-    Range
 
 data CreationChart
   = MkCreationChart
     String -- ^ system_name
     [CreationEntry]
     (Maybe Indexing)
+    (Maybe String) -- ^ explanation
+    (Maybe String) -- ^ part
 
 data CreationEntry
   = MkCreationEntry
     String -- ^ class_name
     [String] -- ^ class_or_cluster_name_list
-    Range
 
 data StaticDiagram
   = MkStaticDiagram
     [StaticComponent]
-    (Maybe LString) -- ^ extended_id
-    String -- ^ comment
-    Range
+    (Maybe String) -- ^ extended_id
+    Comment
 
 data StaticComponent
   = Cluster Cluster
@@ -136,8 +130,7 @@ data Cluster
     String -- ^ cluster_name
     [StaticComponent]
     Bool -- ^ reused?
-    String -- ^ comment
-    Range
+    Comment
 
 data Class
   = MkClass
@@ -148,8 +141,7 @@ data Class
     Bool -- ^ reused
     Bool -- ^ persistent
     Bool -- ^ interfaced
-    String -- ^ comment
-    Range
+    Comment
 
 data ClassMod
   = ROOT
@@ -176,8 +168,8 @@ data ClientRelation
     (Maybe String) -- ^ semantic_label
 
 data ClientEntityExpression
-  = ClientEntityList [ClientEntity] Range
-  | Multiplicity (Located Integer)
+  = ClientEntityList [ClientEntity]
+  | Multiplicity Integer
 
 data ClientEntity
   = SupplierIndirection SupplierIndirection
@@ -186,44 +178,43 @@ data ClientEntity
 data SupplierIndirection
   = MkSupplierIndirection
     (Maybe IndirectionFeaturePart)
+    GenericIndirection
 
 data IndirectionFeaturePart
   = FeatureName FeatureName
   | IndirectionFeatureList IndirectionFeatureList
 
 data IndirectionFeatureList
-  = MkIndirectionFeatureList [FeatureName] Range
+  = MkIndirectionFeatureList [FeatureName]
 
 data ParentIndirection
-  = MkParentIndirection GenericIndirection Range
+  = MkParentIndirection GenericIndirection
 
 data GenericIndirection
-  = MkGenericIndirection IndirectionElement Range
+  = MkGenericIndirection IndirectionElement
 
 data NamedIndirection
   = MkNamedIndirection
     ClassName
     [IndirectionElement]
-    Range
 
 data IndirectionElement
-  = CompactedIndirectionElementImpl Range
+  = CompactedIndirectionElementImpl
   | NamedIndirection NamedIndirection
   | ClassName ClassName
 
 data TypeMark
-  = TypeMarkHASTYPE Range
-  | TypeMarkAGGREGATE Range
-  | TypeMarkSHAREDMARK Integer Range
+  = TypeMarkHASTYPE
+  | TypeMarkAGGREGATE
+  | TypeMarkSHAREDMARK Integer
 
 data StaticRef
   = MkStaticRef
     [StaticRefPart] -- ^ cluster_prefix
     StaticRefPart -- ^ static_component_name
-    Range
 
 data StaticRefPart
-  = MkStaticRefPart (Located String)
+  = MkStaticRefPart String
 
 data ClassInterface
   = MkClassInterface
@@ -231,12 +222,11 @@ data ClassInterface
     [Type] -- ^ parent_class_list
     [Expression] -- ^ class_invariant
     (Maybe Indexing) -- ^ indexing
-    Range
 
 data Expression
   = Quantification Quantification
-  | BinaryExp BinaryOp Expression Expression (Maybe Range)
-  | UnaryExp UnaryOp Expression (Maybe Range)
+  | BinaryExp BinaryOp Expression Expression
+  | UnaryExp UnaryOp Expression
   | Constant Constant
   | CallExp Expression UnqualifiedCall
   | UnqualifiedCall UnqualifiedCall
@@ -245,21 +235,22 @@ data Type
   = MkType
     ClassName
     [Type] -- ^ actual_generics
-    Range
 
 data Feature
   = MkFeature
     [FeatureSpecification]
     [ClassName] -- ^ selective_export
+    Comment
 
 data FeatureSpecification
   = MkFeatureSpecification
-    (Maybe FeatureSpecificationModifier)
+    FeatureSpecificationModifier
     [FeatureName]
     [FeatureArgument]
     (Maybe ContractClause)
     (Maybe HasType)
     (Maybe RenameClause)
+    Comment
 
 data FeatureSpecificationModifier
   = FeatureSpecDEFERRED
@@ -268,31 +259,28 @@ data FeatureSpecificationModifier
   | FeatureSpecNONE
 
 data HasType
-  = MkHasType TypeMark Type Range
+  = MkHasType TypeMark Type
 
 data ContractClause
   = MkContractClause
     [Expression] -- ^ preconditions
     [Expression] -- ^ postconditions
-    Range
 
 data FeatureName
-  = MkFeatureName String Range
+  = MkFeatureName String
 
 data RenameClause
-  = MkRenameClause ClassName FeatureName Range
+  = MkRenameClause ClassName FeatureName
 
 data FeatureArgument
   = MkFeatureArgument
     String -- ^ identifier
     Type
-    Range
 
 data FormalGeneric
   = MkFormalGeneric
     String -- ^ formal_generic_name
     (Maybe Type) -- ^ class_type
-    Range
 
 data Quantification
   = MkQuantification
@@ -308,16 +296,15 @@ data VariableRange
   | TypeRange TypeRange
 
 data MemberRange
-  = MkMemberRange [String] Expression Range
+  = MkMemberRange [String] Expression
 
 data TypeRange
-  = MkTypeRange [String] Type Range
+  = MkTypeRange [String] Type
 
 data UnqualifiedCall
   = MkUnqualifiedCall
     String -- ^ identifier
     [Expression] -- ^ actual_arguments
-    Range
 
 data EnumerationElement
   = Expression Expression
@@ -328,10 +315,10 @@ data Interval
   | CharacterInterval CharacterInterval
 
 data IntegerInterval
-  = MkIntegerInterval Integer Integer Range
+  = MkIntegerInterval Integer Integer
 
 data CharacterInterval
-  = MkCharacterInterval Char Char Range
+  = MkCharacterInterval Char Char
 
 data Constant
   = ManifestConstant ManifestConstant
@@ -351,8 +338,7 @@ data DynamicDiagram
   = MkDynamicDiagram
     [DynamicComponent] -- ^ components
     (Maybe String) -- ^ extended_id
-    String -- ^ comment
-    Range
+    Comment
 
 data DynamicComponent
   = ScenarioDescription ScenarioDescription
@@ -365,40 +351,34 @@ data ScenarioDescription
   = MkScenarioDescription
     String -- ^ scenario_name
     [LabelledAction] -- ^ labelled_actions
-    (Maybe String) -- ^ comment
-    Range
+    Comment
 
 data LabelledAction
   = MkLabelledAction
     String -- ^ action_label
     String -- ^ action_description
-    Range
 
 data ObjectGroup
   = MkObjectGroup
     Bool -- ^ nameless?
     String -- ^ group_name
     [DynamicComponent]
-    String -- ^ comment
-    Range
+    Comment
 
 data ObjectStack
   = MkObjectStack
     ObjectName
-    String -- ^ comment
-    Range
+    Comment
 
 data ObjectInstance
   = MkObjectInstance
     ObjectName
-    String -- ^ comment
-    Range
+    Comment
 
 data ObjectName
   = MkObjectName
     ClassName
     (Maybe String) -- ^ extended_id
-    Range
 
 data BinaryOp
   = Add | Sub

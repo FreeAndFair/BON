@@ -4,7 +4,6 @@
 module BON.Parser where
 
 import BON.Parser.AST
-import BON.Parser.Position
 import BON.Parser.Lexer
 
 import Data.Maybe (fromMaybe)
@@ -12,108 +11,108 @@ import Data.Maybe (fromMaybe)
 }
 
 %token
-  EOF                { Located $$ TEnd }
-  IDENTIFIER         { $$@(Located _ (TIdent _)) }
-  INTEGER            { $$@(Located _ (TNat _)) }
+  EOF                { TEnd }
+  IDENTIFIER         { TIdent $$ }
+  INTEGER            { TNat $$ }
   CHARACTER_CONSTANT { $$ }
-  MANIFEST_STRING    { $$@(Located _ (TString _)) }
-  REAL               { $$@(Located _ (TReal _ _)) }
-  comment            { $$@(Located _ (TComment _)) }
-  manifest_textblock { $$@(Located _ (TString _)) }
+  MANIFEST_STRING    { TString $$ }
+  REAL               { TReal $$ }
+  COMMENT            { TComment $$ }
+  manifest_textblock { TString $$ }
 
-  'Current'          { Located $$ (TKey "Current") }
-  'Void'             { Located $$ (TKey "Void") }
-  'Result'           { Located $$ (TKey "Result") }
-  'action'           { Located $$ (TKey "action") }
-  'and'              { Located $$ (TKey "and") }
-  'class'            { Located $$ (TKey "class") }
-  'class_chart'      { Located $$ (TKey "class_chart") }
-  'client'           { Located $$ (TKey "client") }
-  'cluster'          { Located $$ (TKey "cluster") }
-  'cluster_chart'    { Located $$ (TKey "cluster_chart") }
-  'command'          { Located $$ (TKey "command") }
-  'component'        { Located $$ (TKey "component") }
-  'constraint'       { Located $$ (TKey "constraint") }
-  'creates'          { Located $$ (TKey "creates") }
-  'creation_chart'   { Located $$ (TKey "creation_chart") }
-  'creator'          { Located $$ (TKey "creator") }
-  'deferred'         { Located $$ (TKey "deferred") }
-  'delta'            { Located $$ (TKey "delta") }
-  'description'      { Located $$ (TKey "description") }
-  'dictionary'       { Located $$ (TKey "dictionary") }
-  'dynamic_diagram'  { Located $$ (TKey "dynamic_diagram") }
-  'effective'        { Located $$ (TKey "effective") }
-  'end'              { Located $$ (TKey "end") }
-  'ensure'           { Located $$ (TKey "ensure") }
-  'event'            { Located $$ (TKey "event") }
-  'event_chart'      { Located $$ (TKey "event_chart") }
-  'exists'           { Located $$ (TKey "exists") }
-  'explanation'      { Located $$ (TKey "explanation") }
-  'false'            { Located $$ (TKey "false") }
-  'feature'          { Located $$ (TKey "feature") }
-  'for_all'          { Located $$ (TKey "for_all") }
-  'incoming'         { Located $$ (TKey "incoming") }
-  'indexing'         { Located $$ (TKey "indexing") }
-  'inherit'          { Located $$ (TKey "inherit") }
-  'interfaced'       { Located $$ (TKey "interfaced") }
-  'invariant'        { Located $$ (TKey "invariant") }
-  'involves'         { Located $$ (TKey "involves") }
-  'it_holds'         { Located $$ (TKey "it_holds") }
-  'member_of'        { Located $$ (TKey "member_of") }
-  'nameless'         { Located $$ (TKey "nameless") }
-  'not'              { Located $$ (TKey "not") }
-  'object'           { Located $$ (TKey "object") }
-  'object_group'     { Located $$ (TKey "object_group") }
-  'object_stack'     { Located $$ (TKey "object_stack") }
-  'old'              { Located $$ (TKey "old") }
-  'or'               { Located $$ (TKey "or") }
-  'outgoing'         { Located $$ (TKey "outgoing") }
-  'part'             { Located $$ (TKey "part") }
-  'persistent'       { Located $$ (TKey "persistent") }
-  'query'            { Located $$ (TKey "query") }
-  'redefined'        { Located $$ (TKey "redefined") }
-  'require'          { Located $$ (TKey "require") }
-  'reused'           { Located $$ (TKey "reused") }
-  'root'             { Located $$ (TKey "root") }
-  'scenario'         { Located $$ (TKey "scenario") }
-  'scenario_chart'   { Located $$ (TKey "scenario_chart") }
-  'static_diagram'   { Located $$ (TKey "static_diagram") }
-  'such_that'        { Located $$ (TKey "such_that") }
-  'system_chart'     { Located $$ (TKey "system_chart") }
-  'true'             { Located $$ (TKey "true") }
-  'xor'              { Located $$ (TKey "xor") }
-  ';'                { Located $$ (TKey ";") }
-  ':'                { Located $$ (TKey ":") }
-  ','                { Located $$ (TKey ",") }
-  '.'                { Located $$ (TKey ".") }
-  '('                { Located $$ (TKey "(") }
-  ')'                { Located $$ (TKey ")") }
-  '['                { Located $$ (TKey "[") }
-  ']'                { Located $$ (TKey "]") }
-  '{'                { Located $$ (TKey "{") }
-  '}'                { Located $$ (TKey "}") }
-  ':{'               { Located $$ (TKey ":{") }
-  '<->'              { Located $$ (TKey "<->") }
-  '->'               { Located $$ (TKey "->") }
-  '<-'               { Located $$ (TKey "<-") }
-  '<'                { Located $$ (TKey "<") }
-  '>'                { Located $$ (TKey ">") }
-  '<='               { Located $$ (TKey "<=") }
-  '>='               { Located $$ (TKey ">=") }
-  '='                { Located $$ (TKey "=") }
-  '/='               { Located $$ (TKey "/=") }
-  '+'                { Located $$ (TKey "+") }
-  '-'                { Located $$ (TKey "-") }
-  '*'                { Located $$ (TKey "*") }
-  '/'                { Located $$ (TKey "/") }
-  '//'               { Located $$ (TKey "//") }
-  '\\\\'             { Located $$ (TKey "\\\\") }
-  '^'                { Located $$ (TKey "^") }
-  '..'               { Located $$ (TKey "..") }
-  '...'              { Located $$ (TKey "...") }
+  'Current'          { TKey "Current" }
+  'Void'             { TKey "Void" }
+  'Result'           { TKey "Result" }
+  'action'           { TKey "action" }
+  'and'              { TKey "and" }
+  'class'            { TKey "class" }
+  'class_chart'      { TKey "class_chart" }
+  'client'           { TKey "client" }
+  'cluster'          { TKey "cluster" }
+  'cluster_chart'    { TKey "cluster_chart" }
+  'command'          { TKey "command" }
+  'component'        { TKey "component" }
+  'constraint'       { TKey "constraint" }
+  'creates'          { TKey "creates" }
+  'creation_chart'   { TKey "creation_chart" }
+  'creator'          { TKey "creator" }
+  'deferred'         { TKey "deferred" }
+  'delta'            { TKey "delta" }
+  'description'      { TKey "description" }
+  'dictionary'       { TKey "dictionary" }
+  'dynamic_diagram'  { TKey "dynamic_diagram" }
+  'effective'        { TKey "effective" }
+  'end'              { TKey "end" }
+  'ensure'           { TKey "ensure" }
+  'event'            { TKey "event" }
+  'event_chart'      { TKey "event_chart" }
+  'exists'           { TKey "exists" }
+  'explanation'      { TKey "explanation" }
+  'false'            { TKey "false" }
+  'feature'          { TKey "feature" }
+  'for_all'          { TKey "for_all" }
+  'incoming'         { TKey "incoming" }
+  'indexing'         { TKey "indexing" }
+  'inherit'          { TKey "inherit" }
+  'interfaced'       { TKey "interfaced" }
+  'invariant'        { TKey "invariant" }
+  'involves'         { TKey "involves" }
+  'it_holds'         { TKey "it_holds" }
+  'member_of'        { TKey "member_of" }
+  'nameless'         { TKey "nameless" }
+  'not'              { TKey "not" }
+  'object'           { TKey "object" }
+  'object_group'     { TKey "object_group" }
+  'object_stack'     { TKey "object_stack" }
+  'old'              { TKey "old" }
+  'or'               { TKey "or" }
+  'outgoing'         { TKey "outgoing" }
+  'part'             { TKey "part" }
+  'persistent'       { TKey "persistent" }
+  'query'            { TKey "query" }
+  'redefined'        { TKey "redefined" }
+  'require'          { TKey "require" }
+  'reused'           { TKey "reused" }
+  'root'             { TKey "root" }
+  'scenario'         { TKey "scenario" }
+  'scenario_chart'   { TKey "scenario_chart" }
+  'static_diagram'   { TKey "static_diagram" }
+  'such_that'        { TKey "such_that" }
+  'system_chart'     { TKey "system_chart" }
+  'true'             { TKey "true" }
+  'xor'              { TKey "xor" }
+  ';'                { TKey ";" }
+  ':'                { TKey ":" }
+  ','                { TKey "," }
+  '.'                { TKey "." }
+  '('                { TKey "(" }
+  ')'                { TKey ")" }
+  '['                { TKey "[" }
+  ']'                { TKey "]" }
+  '{'                { TKey "{" }
+  '}'                { TKey " }" }
+  ':{'               { TKey ":{" }
+  '<->'              { TKey "<->" }
+  '->'               { TKey "->" }
+  '<-'               { TKey "<-" }
+  '<'                { TKey "<" }
+  '>'                { TKey ">" }
+  '<='               { TKey "<=" }
+  '>='               { TKey ">=" }
+  '='                { TKey "=" }
+  '/='               { TKey "/=" }
+  '+'                { TKey "+" }
+  '-'                { TKey "-" }
+  '*'                { TKey "*" }
+  '/'                { TKey "/" }
+  '//'               { TKey "//" }
+  '\\\\'             { TKey "\\\\" }
+  '^'                { TKey "^" }
+  '..'               { TKey ".." }
+  '...'              { TKey "..." }
 
 %name prog prog
-%tokentype { Located Token }
+%tokentype { Token }
 
 %left '<->'
 %right '->'
@@ -192,15 +191,15 @@ sepg(p, q)
 
 prog :: { BonSourceFile }
   : bon_specification EOF
-      { MkBonSourceFile $1 Nothing (getLoc $1) }
+      { MkBonSourceFile $1 Nothing }
   | indexing bon_specification EOF
-      { MkBonSourceFile $2 (Just $1) (getLoc ($1, $2)) }
+      { MkBonSourceFile $2 (Just $1) }
   | EOF
       -- { addParseProblem(MissingElementParseError(getLoc $1, "at least one specification entry", "in source file", True)) }
-      { MkBonSourceFile [] Nothing (getLoc $1) }
+      { MkBonSourceFile [] Nothing }
   | indexing EOF
       -- { addParseProblem(MissingElementParseError(getLoc ($2), "at least one specification entry", "in source file", True)) }
-      { MkBonSourceFile [] $1 (getLoc $1) }
+      { MkBonSourceFile [] (Just $1) }
 
 {-
 /**********************************************
@@ -234,11 +233,11 @@ informal_chart :: { InformalChart }
 
 class_dictionary :: { ClassDictionary }
   : 'dictionary' system_name opt(indexing) opt(explanation) opt(part) list1(dictionary_entry) 'end'
-  { MkClassDictionary $2 $6 $3 $4 $5 (getLoc ($1, $7)) }
+  { MkClassDictionary $2 $6 $3 $4 $5 }
 
 dictionary_entry :: { DictionaryEntry }
   : 'class' class_name 'cluster' sep1(cluster_name, ',') description
-  { DictionaryEntry $2 $4 $5 (getLoc ($1, $5)) }
+  { DictionaryEntry $2 $4 $5 }
 
 ------------------------------------------------
 
@@ -250,9 +249,9 @@ system_chart :: { ClusterChart }
     opt(part)
     list(cluster_entry)
     'end'
-  { MkClusterChart $2 True [] $6 $3 $4 $5 (getLoc ($1, $7)) }
+  { MkClusterChart $2 True [] $6 $3 $4 $5 }
 
-explanation :: { Located String }
+explanation :: { String }
   : 'explanation' manifest_textblock { $2 }
 {-
   | 'explanation'
@@ -260,25 +259,25 @@ explanation :: { Located String }
 -}
 
 indexing :: { Indexing }
-  : 'indexing' index_list { MkIndexing $2 (getLoc ($1, $2)) }
+  : 'indexing' index_list { MkIndexing $2 }
   | 'indexing'
   --{ addParseProblem(MissingElementParseError(getLoc ($1), "indexing entries", "after 'indexing'", False)) }
-  { MkIndexing [] (getLoc ($1)) }
+  { MkIndexing [] }
 
-part :: { Located String }
+part :: { String }
   : 'part' MANIFEST_STRING { $2 }
   | 'part'
     --{ addParseProblem(MissingElementParseError(getLoc ($p), "part text", "after 'part'", false)); }
     { "" }
 
-description :: { Located String }
+description :: { String }
   : 'description' manifest_textblock { $2 }
 
 cluster_entry :: { ClusterEntry }
   : 'cluster' cluster_name description
-  { MkClusterEntry $2 $3 (getLoc ($1, $3)) }
+  { MkClusterEntry $2 $3 }
 
-system_name :: { Located String }
+system_name :: { String }
   : IDENTIFIER { $1 }
 
 ------------------------------------------------
@@ -288,16 +287,16 @@ index_list :: { [IndexClause] }
 
 index_clause :: { IndexClause }
   : IDENTIFIER ':' index_term_list
-  { MkIndexClause $1 $3 (getLoc ($1, $3)) }
+  { MkIndexClause $1 $3 }
 {-
   | IDENTIFIER ':'
   { addParseProblem(MissingElementParseError(getLoc ($1), "index term(s)", "in index clause", True)) }
 -}
 
-index_term_list :: { [Located String] }
+index_term_list :: { [String] }
   : sep1(index_string, ',') { $1 }
 
-index_string :: { Located String }
+index_string :: { String }
   : manifest_textblock { $1 }
 
 
@@ -312,12 +311,12 @@ cluster_chart :: { ClusterChart }
     list(class_entry)
     list(cluster_entry)
     'end'
-  { MkClusterChart $2 $6 $7 $3 $4 $5 (getLoc ($1, $8)) }
+  { MkClusterChart $2 False $6 $7 $3 $4 $5 }
 
 class_entry :: { ClassEntry }
-  : 'class' class_name description { MkClassEntry $2 $3 (getLoc ($1, $3)) }
+  : 'class' class_name description { MkClassEntry $2 $3 }
 
-cluster_name :: { Located String }
+cluster_name :: { String }
   : IDENTIFIER { $1 }
 
 ------------------------------------------------
@@ -333,8 +332,7 @@ class_chart :: { ClassChart }
     opt(commands)
     opt(constraints)
     'end'
-  { MkClassChart $2 (fromMaybe [] $6) (fromMaybe [] $7) (fromMaybe [] $8) (fromMaybe [] $9) $3 $4 $5
-    (getLoc ($1,$9)) }
+  { MkClassChart $2 (fromMaybe [] $6) (fromMaybe [] $7) (fromMaybe [] $8) (fromMaybe [] $9) $3 $4 $5 }
 
 inherits :: { [ClassName] }
   : 'inherit' class_name_list { $2 }
@@ -343,19 +341,19 @@ inherits :: { [ClassName] }
   { addParseProblem(MissingElementParseError(getLoc ($1), "class name(s)", "in inherits clause", True)) }
 -}
 
-queries :: { [LString] }
+queries :: { [String] }
   : 'query' query_list { $2 }
 
-commands :: { [LString] }
+commands :: { [String] }
   : 'command' command_list { $2 }
 
-constraints :: { [LString] }
+constraints :: { [String] }
   : 'constraint' constraint_list { $2 }
 
-query_list :: { [LString] }
+query_list :: { [String] }
   : sep1f(manifest_textblock, ',') { $1 }
 
-command_list :: { [LString] }
+command_list :: { [String] }
   : sep1f(manifest_textblock, ',') { $1 }
 
 constraint_list :: { [String] }
@@ -368,7 +366,7 @@ class_or_cluster_name_list :: { [String] }
   : sep1(class_or_bracketed_cluster_name, ',') { $1 }
 
 class_or_bracketed_cluster_name :: { String }
-  : class_name { thing $1 }
+  : class_name { $1 }
   | '(' cluster_name ')' { $2 }
 
 class_name :: { ClassName }
@@ -385,7 +383,7 @@ event_chart :: { EventChart }
      opt(part)
      list(event_entry)
      'end'
-  { MkEventChart $2 $3 $7 $4 $5 $6 (getLoc ($1, $>)) }
+  { MkEventChart $2 $3 $7 $4 $5 $6 }
 
 direction :: { Direction }
   : 'incoming' { Incoming }
@@ -396,7 +394,7 @@ event_entry :: { EventEntry }
     manifest_textblock
     'involves'
     class_or_cluster_name_list
-  { MkEventEntry $2 $4 (getLoc ($1, $>)) }
+  { MkEventEntry $2 $4 }
 
 ------------------------------------------------
 
@@ -408,11 +406,11 @@ scenario_chart :: { ScenarioChart }
     opt(part)
     list(scenario_entry)
     'end'
-  { MkScenarioChart $2 $6 $3 $4 $5 (getLoc ($1, $>)) }
+  { MkScenarioChart $2 $6 $3 $4 $5 }
 
 scenario_entry :: { ScenarioEntry }
   : 'scenario' MANIFEST_STRING description
-  { MkScenarioEntry $2 $3 (getLoc ($1,$3)) }
+  { MkScenarioEntry $2 $3 }
 
 ------------------------------------------------
 
@@ -424,11 +422,11 @@ creation_chart :: { CreationChart }
     opt(part)
     list(creation_entry)
     'end'
-  { MkCreationChart $2 $6 $3 $4 $5 (getLoc ($1, $>)) }
+  { MkCreationChart $2 $6 $3 $4 $5 }
 
 creation_entry :: { CreationEntry }
   : 'creator' class_name 'creates' class_or_cluster_name_list
-  { MkCreationEntry $2 $4 (getLoc ($1, $>)) }
+  { MkCreationEntry $2 $4 }
 
 {-
 /**********************************************
@@ -438,11 +436,11 @@ creation_entry :: { CreationEntry }
 
 static_diagram :: { StaticDiagram }
   : 'static_diagram' opt(extended_id) comment 'component' list(static_component) 'end'
-  { MkStaticDiagram $5 $2 $3 (getLoc ($1, $>)) }
+  { MkStaticDiagram $5 $2 $3 }
 
-extended_id :: { Located String }
+extended_id :: { String }
   : IDENTIFIER { $1 }
-  | INTEGER { fmap show $1 }
+  | INTEGER { show $1 }
 
 static_component :: { StaticComponent }
   : cluster         { Cluster $1 }
@@ -457,7 +455,7 @@ cluster :: { Cluster }
     reused
     comment
     opt(cluster_components)
-  { MkCluster $2 (fromMaybe [] $5) $3 $4 (getLoc ($1, $2)) }
+  { MkCluster $2 (fromMaybe [] $5) $3 $4 }
 
 reused :: { Bool }
   : 'reused'    { True }
@@ -476,7 +474,7 @@ class :: { Class }
     interfaced
     comment
     opt(class_interface)
-  { MkClass $3 (fromMaybe [] $4) $1 $9 $5 $6 $7 $8 (getLoc ($1, $>)) }
+  { MkClass $3 (fromMaybe [] $4) $1 $9 $5 $6 $7 $8 }
 
 class_mod :: { ClassMod }
   : 'root'      { ROOT }
@@ -491,10 +489,8 @@ interfaced :: { Bool }
   : 'interfaced' { True }
   | {- empty -}  { False }
 
-{--------------
-comment :: [String comment] :
-  { $comment = lookForCommentBefore(); }
--------------}
+comment :: { Comment }
+  : list1(COMMENT) { MkComment $1 }
 
 static_relation :: { StaticRelation }
   : inheritance_relation { InheritanceRelation $1 }
@@ -508,7 +504,7 @@ inheritance_relation :: { InheritanceRelation }
     opt(multiplicity_braces)
     parent
     opt(semantic_label)
-  { MkInheritanceRelation $1 $4 $3 $5 (getLoc ($1, $>)) }
+  { MkInheritanceRelation $1 $4 $3 $5 }
 
 multiplicity_braces :: { Integer }
   : '{' multiplicity '}' { $2 }
@@ -520,7 +516,7 @@ client_relation :: { ClientRelation }
     opt(type_mark)
     supplier
     opt(semantic_label)
-  { MkClientRelation $1 $5 $3 $4 $6 (getLoc ($1, $>)) }
+  { MkClientRelation $1 $5 $3 $4 $6 }
 
 client_entities :: { ClientEntityExpression }
   : '{' client_entity_expression '}' { $2 }
@@ -544,9 +540,9 @@ client_entity :: { ClientEntity }
 
 supplier_indirection :: { SupplierIndirection }
   : indirection_feature_part ':' generic_indirection
-    { MkSupplierIndirection (Just $1) $3 (getLoc ($1, $3)) }
+    { MkSupplierIndirection (Just $1) $3 }
   | generic_indirection
-    { MkSupplierIndirection Nothing $1 (getLoc $1) }
+    { MkSupplierIndirection Nothing $1 }
 
 indirection_feature_part :: { IndirectionFeaturePart }
   : feature_name { FeatureName $1 }
@@ -554,11 +550,11 @@ indirection_feature_part :: { IndirectionFeaturePart }
 
 indirection_feature_list :: { IndirectionFeatureList }
   : '(' feature_name_list ')'
-  { MkIndirectionFeatureList $2 (getLoc ($1, $3)) }
+  { MkIndirectionFeatureList $2 }
 
 parent_indirection :: { ParentIndirection }
   : '->' generic_indirection
-  { MkParentIndirection $2 (getLoc $2) }
+  { MkParentIndirection $2 }
 
 ------------------------------------------------
 
@@ -567,28 +563,28 @@ generic_indirection :: { GenericIndirection }
                        --NB - changed the below... both are IDENTIFIERs
 -- |
   : indirection_element
-  { MkGenericIndirection $1 (getLoc $1) }
+  { MkGenericIndirection $1 }
 
 named_indirection :: { NamedIndirection }
   : class_name '[' indirection_list ']'
-   { MkNamedIndirection $1 $3 (getLoc ($1, $>)) }
+   { MkNamedIndirection $1 $3 }
 
 indirection_list :: { [IndirectionElement] }
   : sep1(indirection_element, ',') { $1 }
 
 indirection_element :: { IndirectionElement }
-  : '...' { CompactedIndirectionElementImpl (getLoc $1) }
+  : '...' { CompactedIndirectionElementImpl }
   | named_indirection { NamedIndirection $1 }
   | class_name { ClassName $1 }
 
 type_mark :: { TypeMark }
-  : ':' { TypeMarkHASTYPE (getLoc $1) }
-  | ':{' { TypeMarkAGGREGATE (getLoc $1) }
+  : ':' { TypeMarkHASTYPE }
+  | ':{' { TypeMarkAGGREGATE }
   | shared_mark { $1 }
 
 shared_mark :: { TypeMark }
   : ':' '(' multiplicity ')'
-  { TypeMarkSHAREDMARK $3 (getLoc ($1, $>)) }
+  { TypeMarkSHAREDMARK $3 }
 
 ------------------------------------------------
 
@@ -605,22 +601,17 @@ supplier :: { StaticRef }
   : static_ref { $1 }
 
 static_ref :: { StaticRef }
-  : static_component_name { MkStaticRef [] $1 (getLoc $1) }
-  | cluster_prefix static_component_name { MkStaticRef $1 $2 (getLoc ($1, $2)) }
-
-cluster_prefix :: { [StaticRefPart] }
-  : cluster_name { [$1] }
-  | cluster_prefix '.' cluster_name { $1 ++ [$3] }
+  : sep1(static_component_name,'.') { MkStaticRef (init $1) (last $1) }
 
 --TODO - class_name and cluster_name are both just IDENTIFIERs.
 --static_component_name  :  class_name | cluster_name
 static_component_name :: { StaticRefPart }
   : IDENTIFIER { MkStaticRefPart $1 }
 
-multiplicity :: { Located Integer }
+multiplicity :: { Integer }
   : INTEGER { $1 }
 
-semantic_label :: { Located String }
+semantic_label :: { String }
   : MANIFEST_STRING { $1 }
 
 {-
@@ -641,25 +632,25 @@ class_interface_start_indexing :: { ClassInterface }
     list(feature_clause)
     opt(class_invariant)
     'end'
-  { MkClassInterface $3 (fromMaybe [] $2) (fromMaybe [] $4) (Just $1) (getLoc ($1, $>)) }
+  { MkClassInterface $3 (fromMaybe [] $2) (fromMaybe [] $4) (Just $1) }
 
 class_interface_start_inherit :: { ClassInterface }
   : parent_class_list
     list(feature_clause)
     opt(class_invariant)
     'end'
-  { MkClassInterface $2 $1 (fromMaybe [] $3) Nothing (getLoc ($1, $>)) }
+  { MkClassInterface $2 $1 (fromMaybe [] $3) Nothing }
 
 class_interface_start_features :: { ClassInterface }
   : list1(feature_clause)
     opt(class_invariant)
     'end'
-  { MkClassInterface $1 [] (fromMaybe [] $2) Nothing (getLoc ($1, $>)) }
+  { MkClassInterface $1 [] (fromMaybe [] $2) Nothing }
 
 class_interface_start_invariant :: { ClassInterface }
   : class_invariant
     'end'
-  { MkClassInterface [] [] $1 Nothing (getLoc ($1, $>)) }
+  { MkClassInterface [] [] $1 Nothing }
 
 class_invariant :: { [Expression] }
   : 'invariant' assertion { $2 }
@@ -679,7 +670,7 @@ feature_clause :: { Feature }
     opt(selective_export)
     comment
     list1(feature_specification)
-  { MkFeature $4 (fromMaybe [] $2) $3 (getLoc ($1, $>)) }
+  { MkFeature $4 (fromMaybe [] $2) $3 }
 
 feature_specification :: { FeatureSpecification }
   : feature_specification_modifier
@@ -689,7 +680,7 @@ feature_specification :: { FeatureSpecification }
     comment
     list(feature_argument)
     opt(contract_clause)
-  { MkFeatureSpecification $1 $2 $6 $7 $3 $4 $5 (getLoc ($1, $>)) }
+  { MkFeatureSpecification $1 $2 (concat $6) $7 $3 $4 $5 }
 
 feature_specification_modifier :: { FeatureSpecificationModifier }
   : 'deferred'  { FeatureSpecDEFERRED }
@@ -698,8 +689,8 @@ feature_specification_modifier :: { FeatureSpecificationModifier }
   | {- empty -} { FeatureSpecNONE }
 
 has_type :: { HasType }
-  : type_mark type { MkHasType $1 $2 (getLoc ($1, $2)) }
-  | type_mark 'Void' { MkHasType $1 (MkType "Void" (getLoc $2)) (getLoc ($1, $2)) }
+  : type_mark type { MkHasType $1 $2 }
+  | type_mark 'Void' { MkHasType $1 (MkType "Void" []) }
 
 ------------------------------------------------
 
@@ -708,9 +699,9 @@ contract_clause :: { ContractClause }
 
 --NB. Rewritten from precondition | postcondition | pre_and_post
 contracting_conditions :: { ContractClause }
-  : precondition { MkContractClause $1 [] (getLoc $1) }
-  | postcondition { MkContractClause [] $1 (getLoc $1) }
-  | precondition postcondition  { MkContractClause $1 $2 (getLoc ($1, $2)) }
+  : precondition { MkContractClause $1 [] }
+  | postcondition { MkContractClause [] $1 }
+  | precondition postcondition  { MkContractClause $1 $2 }
 
 precondition :: { [Expression] }
   : 'require' assertion { $2 }
@@ -727,7 +718,7 @@ feature_name_list :: { [FeatureName] }
   : sep1(feature_name, ',') { $1 }
 
 feature_name :: { FeatureName }
-  : IDENTIFIER { MkFeatureName $1 (getLoc $1) }
+  : IDENTIFIER { MkFeatureName $1 }
  -- | prefix FIXME
  -- | infix FIXME
 
@@ -736,11 +727,11 @@ rename_clause :: { RenameClause }
 
 renaming :: { RenameClause }
   : '^' class_name '.' feature_name
-  { MkRenameClause $2 $4 (getLoc ($1, $>)) }
+  { MkRenameClause $2 $4 }
 
 feature_argument :: { [FeatureArgument] }
-  : either_arrow identifier_list ':' type { [ MkFeatureArgument i $4 (getLoc ($1, $>)) | i <- $2 ] }
-  | either_arrow type { [MkFeatureArgument "" $2 (getLoc $2)] }
+  : either_arrow identifier_list ':' type { [ MkFeatureArgument i $4 | i <- $2 ] }
+  | either_arrow type { [MkFeatureArgument "" $2] }
 
 either_arrow :: { Bool }
   : '->' { True }
@@ -776,15 +767,15 @@ formal_generic_list :: { [FormalGeneric] }
   : sep1(formal_generic, ',') { $1 }
 
 formal_generic :: { FormalGeneric }
-  : formal_generic_name                 { MkFormalGeneric $1 Nothing (getLoc $1) }
-  | formal_generic_name '->' class_type { MkFormalGeneric $1 (Just $3) (getLoc ($1, $3)) }
+  : formal_generic_name                 { MkFormalGeneric $1 Nothing }
+  | formal_generic_name '->' class_type { MkFormalGeneric $1 (Just $3) }
 
 formal_generic_name :: { String }
   : IDENTIFIER { $1 }
 
 class_type :: { Type }
   : class_name opt(actual_generics)
-  { MkType $1 (fromMaybe [] $2) (getLoc ($1, $2)) }
+  { MkType $1 (fromMaybe [] $2) }
 
 actual_generics :: { [Type] }
   : '[' type_list ']' { $2 }
@@ -797,7 +788,7 @@ type_list :: { [Type] }
 --type  :  class_type | formal_generic_name
 type :: { Type }
   : IDENTIFIER opt(actual_generics)
-  { MkType $1 (fromMaybe [] $2) (getLoc ($1, $>)) }
+  { MkType $1 (fromMaybe [] $2) }
 
 {-
 /**********************************************
@@ -823,7 +814,7 @@ quantification :: { Quantification }
     range_expression
     opt(restriction)
     proposition
-  { MkQuantification $1 $2 $3 $4 (getLoc ($1, $>)) }
+  { MkQuantification $1 $2 $3 $4 }
 
 quantifier :: { Quantifier }
   : 'for_all' { FORALL }
@@ -844,17 +835,17 @@ variable_range :: { VariableRange }
 
 member_range :: { MemberRange }
   : identifier_list 'member_of' expression
-  { MkMemberRange $1 $3 (getLoc ($1, $3)) }
+  { MkMemberRange $1 $3 }
 
 type_range :: { TypeRange }
   : identifier_list ':' type
-  { MkTypeRange $1 $3 (getLoc ($1, $3)) }
+  { MkTypeRange $1 $3 }
 
 ------------------------------------------------
 
 unqualified_call :: { UnqualifiedCall }
-  : IDENTIFIER actual_arguments { MkUnqualifiedCall $1 $2 (getLoc ($1, $2)) }
-  | IDENTIFIER { MkUnqualifiedCall $1 [] (getLoc $1) }
+  : IDENTIFIER actual_arguments { MkUnqualifiedCall $1 $2 }
+  | IDENTIFIER { MkUnqualifiedCall $1 [] }
 
 actual_arguments :: { [Expression] }
   : '(' expression_list ')' { $2 }
@@ -887,11 +878,11 @@ interval :: { Interval }
 
 integer_interval :: { IntegerInterval }
   : integer_constant '..' integer_constant
-  { MkIntegerInterval $1 $3 (getLoc ($1, $3)) }
+  { MkIntegerInterval $1 $3 }
 
 character_interval :: { CharacterInterval }
   : character_constant '..' character_constant
-  { MkCharacterInterval $1 $3 (getLoc ($1, $3)) }
+  { MkCharacterInterval $1 $3 }
 
 ------------------------------------------------
 
@@ -915,7 +906,7 @@ boolean_constant :: { Bool }
 
 --Changed to lexer rule, as we greedily take any character preceded and followed by a '
 character_constant :: { Char }
-  : CHARACTER_CONSTANT { $1 }
+  : CHARACTER_CONSTANT { error "FIXME" }
 {-
 CHARACTER_CONSTANT :  '\'' v=. '\'';
 -}
@@ -938,7 +929,7 @@ real_constant :: { Double }
 
 dynamic_diagram :: { DynamicDiagram }
   : 'dynamic_diagram' opt(extended_id) comment 'component' list(dynamic_component) 'end'
-  { MkDynamicDiagram $5 $2 $3 (getLoc ($1, $6)) }
+  { MkDynamicDiagram $5 $2 $3 }
 
 dynamic_component :: { DynamicComponent }
   : scenario_description { ScenarioDescription $1 }
@@ -951,11 +942,11 @@ dynamic_component :: { DynamicComponent }
 
 scenario_description :: { ScenarioDescription }
   : 'scenario' scenario_name comment 'action' list1(labelled_action) 'end'
-  { MkScenarioDescription $2 $5 $3 (getLoc ($1, $6)) }
+  { MkScenarioDescription $2 $5 $3 }
 
 labelled_action :: { LabelledAction }
   : action_label action_description
-  { MkLabelledAction $1 $2 (getLoc ($1, $2)) }
+  { MkLabelledAction $1 $2 }
 
 action_label :: { String }
   : MANIFEST_STRING { $1 }
@@ -974,7 +965,7 @@ object_group :: { ObjectGroup }
     group_name
     comment
     opt(group_components)
-  { MkObjectGroup $1 $3 (fromMaybe [] $5) $4 (getLoc ($1, $>)) }
+  { MkObjectGroup $1 $3 (fromMaybe [] $5) $4 }
 
 nameless :: { Bool }
   : 'nameless'  { True }
@@ -985,11 +976,11 @@ group_components :: { [DynamicComponent] }
 
 object_stack :: { ObjectStack }
   : 'object_stack' object_name comment
-  { MkObjectStack $2 $3 (getLoc ($1, $2)) }
+  { MkObjectStack $2 $3 }
 
 object :: { ObjectInstance }
   : 'object' object_name comment
-  { MkObjectInstance $2 $3 (getLoc ($1, $2)) }
+  { MkObjectInstance $2 $3 }
 {-----------
 ------------------------------------------------
 
@@ -1022,8 +1013,8 @@ dynamic_component_name  :
 -}
 
 object_name :: { ObjectName }
-  : class_name                 { MkObjectName $1 Nothing (getLoc $1) }
-  | class_name '.' extended_id { MkObjectName $1 (Just $3) (getLoc ($1, $3)) }
+  : class_name                 { MkObjectName $1 Nothing }
+  | class_name '.' extended_id { MkObjectName $1 (Just $3) }
 
 group_name :: { String }
   : extended_id { $1 }
@@ -1095,7 +1086,7 @@ expr1 :: { Expression }
 
 unary_expression :: { Expression }
   : lowest_expression      { $1 }
-  | unary unary_expression { UnaryExp $1 $2 (getLoc ($1, $2)) }
+  | unary unary_expression { UnaryExp $1 $2 }
 
 lowest_expression :: { Expression }
   : unqualified_call                       { UnqualifiedCall $1 }
@@ -1292,8 +1283,7 @@ WHITESPACE  :  (' '|'\n'|'\r'|'\t')+ {$channel=HIDDEN;}
 ---------------------- END -----------------------}
 {
 
-happyError :: [Located Token] -> a
-happyError (t : _) = error $ "happyError: " ++ show (srcRange t)
-happyError [] = error "happyError"
+happyError :: [Token] -> a
+happyError _ = error "happyError"
 
 }

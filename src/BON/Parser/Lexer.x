@@ -68,7 +68,7 @@ $white+;
 "--".*         { TComment }
 \" @string* \" { TString . read }
 @nat           { TNat . read }
-@real          { readReal }
+@real          { TReal . read }
 @key           { TKey }
 @ident         { TIdent }
 .              { TIllegal }
@@ -77,7 +77,7 @@ $white+;
 data Token
   = TIdent String     -- ^ Name/identifier
   | TNat Integer      -- ^ Natural number literal
-  | TReal Integer Int -- ^ Real number literal
+  | TReal Double      -- ^ Real number literal
   | TString String    -- ^ String literal
   | TKey String       -- ^ Keyword or predefined symbol
   | TComment String   -- ^ Comment string
@@ -85,21 +85,12 @@ data Token
   | TIllegal String   -- ^ Illegal character
   deriving (Show)
 
--- | TReal n e represents n * 10^(-e)
-readReal :: String -> Token
-readReal s = TReal n e
-  where
-    n = read (filter isDigit s)
-    e = length (takeWhile isDigit (reverse s))
-
 ppToken :: Token -> String
 ppToken tkn =
   case tkn of
     TIdent s -> s
     TNat n -> show n
-    TReal n e -> x ++ "." ++ y
-      where x = show (n `div` (10 ^ e))
-            y = reverse (take e (reverse (show n) ++ repeat '0'))
+    TReal d -> show d
     TString s -> show s
     TKey s -> s
     TComment s -> s
