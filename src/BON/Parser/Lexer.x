@@ -15,6 +15,7 @@ module BON.Parser.Lexer
   , alexScan
   , alexGetByte
   , AlexReturn(..)
+  , scan
   ) where
 
 import Data.Char (isAscii, isDigit)
@@ -161,5 +162,14 @@ byteForChar c
   sp              = 5
   other           = 6
   tick            = 7
+
+scan :: String -> [Token]
+scan str = go (initialAlexInput str) where
+  go inp =
+    case alexScan inp 0 of
+      AlexEOF -> [TEnd]
+      AlexError _ -> error "lexical error"
+      AlexSkip  inp' len     -> go inp'
+      AlexToken inp' len act -> act (take len (input inp)) : go inp'
 
 }
