@@ -18,7 +18,7 @@ module BON.Parser.Lexer
   , scan
   ) where
 
-import Data.Char (isAscii, isDigit)
+import Data.Char (isAscii)
 import qualified Data.Char as Char
 import Data.Word (Word8)
 
@@ -80,6 +80,7 @@ data Token
   | TNat Integer      -- ^ Natural number literal
   | TReal Double      -- ^ Real number literal
   | TString String    -- ^ String literal
+  | TChar Char        -- ^ Character literal
   | TKey String       -- ^ Keyword or predefined symbol
   | TComment String   -- ^ Comment string
   | TEnd              -- ^ End of file
@@ -93,6 +94,7 @@ ppToken tkn =
     TNat n -> show n
     TReal d -> show d
     TString s -> show s
+    TChar c -> show c
     TKey s -> s
     TComment s -> s
     TEnd -> "END"
@@ -127,7 +129,7 @@ alexGetByte i =
 byteForChar :: Char -> Word8
 byteForChar c
   | c <= '\6' = non_graphic
-  | isAscii c = fromIntegral (ord c)
+  | isAscii c = fromIntegral (Char.ord c)
   | otherwise = case Char.generalCategory c of
                   Char.LowercaseLetter       -> lower
                   Char.OtherLetter           -> lower

@@ -14,7 +14,7 @@ import Data.Maybe (fromMaybe)
   EOF                { TEnd }
   IDENTIFIER         { TIdent $$ }
   INTEGER            { TNat $$ }
-  CHARACTER_CONSTANT { $$ }
+  CHARACTER_CONSTANT { TChar $$ }
   MANIFEST_STRING    { TString $$ }
   REAL               { TReal $$ }
   COMMENT            { TComment $$ }
