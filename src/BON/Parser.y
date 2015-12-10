@@ -1287,6 +1287,6 @@ WHITESPACE  :  (' '|'\n'|'\r'|'\t')+ {$channel=HIDDEN;}
 {
 
 happyError :: ParseM a
-happyError = ParseM $ \(S toks) -> Left $ ParseError $ "happyError: " ++ show toks
+happyError = ParseM $ \(S _ toks) -> Left $ ParseError $ "happyError: " ++ show toks
 
 }
