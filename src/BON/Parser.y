@@ -3,21 +3,20 @@
 
 module BON.Parser where
 
+import Data.Maybe (fromMaybe)
+
 import BON.Parser.AST
 import BON.Parser.Lexer
-
-import Data.Maybe (fromMaybe)
+import BON.Parser.Monad
 
 }
 
 %token
-  EOF                { TEnd }
   IDENTIFIER         { TIdent $$ }
   INTEGER            { TNat $$ }
   CHARACTER_CONSTANT { TChar $$ }
   MANIFEST_STRING    { TString $$ }
   REAL               { TReal $$ }
-  COMMENT            { TComment $$ }
   manifest_textblock { TString $$ }
 
   'Current'          { TKey "Current" }
@@ -113,6 +112,8 @@ import Data.Maybe (fromMaybe)
 
 %name prog prog
 %tokentype { Token }
+%monad { ParseM }
+%lexer { lexerP } { TEnd }
 
 %left '<->'
 %right '->'
@@ -190,16 +191,18 @@ sepg(p, q)
 -}
 
 prog :: { BonSourceFile }
-  : bon_specification EOF
+  : bon_specification
       { MkBonSourceFile $1 Nothing }
-  | indexing bon_specification EOF
+  | indexing bon_specification
       { MkBonSourceFile $2 (Just $1) }
+      {-
   | EOF
       -- { addParseProblem(MissingElementParseError(getLoc $1, "at least one specification entry", "in source file", True)) }
       { MkBonSourceFile [] Nothing }
   | indexing EOF
       -- { addParseProblem(MissingElementParseError(getLoc ($2), "at least one specification entry", "in source file", True)) }
       { MkBonSourceFile [] (Just $1) }
+-}
 
 {-
 /**********************************************
@@ -490,7 +493,7 @@ interfaced :: { Bool }
   | {- empty -}  { False }
 
 comment :: { Comment }
-  : list1(COMMENT) { MkComment $1 }
+  : {- empty -} {% fmap MkComment getComments }
 
 static_relation :: { StaticRelation }
   : inheritance_relation { InheritanceRelation $1 }
@@ -1283,7 +1286,7 @@ WHITESPACE  :  (' '|'\n'|'\r'|'\t')+ {$channel=HIDDEN;}
 ---------------------- END -----------------------}
 {
 
-happyError :: [Token] -> a
-happyError _ = error "happyError"
+happyError :: ParseM a
+happyError = ParseM $ \(S toks) -> Left $ ParseError $ "happyError: " ++ show toks
 
 }
