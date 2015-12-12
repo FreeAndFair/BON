@@ -89,7 +89,7 @@ import BON.Parser.Monad
   '['                { TKey "[" }
   ']'                { TKey "]" }
   '{'                { TKey "{" }
-  '}'                { TKey " }" }
+  '}'                { TKey "}" }
   ':{'               { TKey ":{" }
   '<->'              { TKey "<->" }
   '->'               { TKey "->" }
