@@ -409,7 +409,7 @@ data DynamicComponent
   | ObjectGroup ObjectGroup
   | ObjectStack ObjectStack
   | ObjectInstance ObjectInstance
-    -- TODO: message_relation
+  | MessageRelation MessageRelation
   deriving Show
 
 data ScenarioDescription
@@ -449,6 +449,13 @@ data ObjectName
   = MkObjectName
     ClassName
     (Maybe String) -- ^ extended_id
+  deriving Show
+
+data MessageRelation
+  = MkMessageRelation
+    ObjectName -- ^ sender
+    ObjectName -- ^ receiver
+    (Maybe String) -- ^ message_label
   deriving Show
 
 data BinaryOp

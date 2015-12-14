@@ -48,17 +48,18 @@ $graphic   = $printable # $white
   "=" | ">" | ">=" | "[" | "\\\\" | "]" | "^" | "{" | "}"
 
 @keywords =
-  "Current" | "Result" | "Void" | "action" | "and" | "class" |
-  "class_chart" | "client" | "cluster" | "cluster_chart" | "command" |
-  "component" | "constraint" | "creates" | "creation_chart" |
-  "creator" | "deferred" | "delta" | "description" | "dictionary" |
-  "dynamic_diagram" | "effective" | "end" | "ensure" | "event" |
-  "event_chart" | "exists" | "explanation" | "false" | "feature" |
-  "for_all" | "incoming" | "indexing" | "inherit" | "interfaced" |
-  "invariant" | "involves" | "it_holds" | "member_of" | "nameless" |
-  "not" | "object" | "object_group" | "object_stack" | "old" | "or" |
-  "outgoing" | "part" | "persistent" | "query" | "redefined" |
-  "require" | "reused" | "root" | "scenario" | "scenario_chart" |
+  "Current" | "Result" | "Void" | "action" | "and" | "calls" |
+  "class" | "class_chart" | "client" | "cluster" | "cluster_chart" |
+  "command" | "component" | "constraint" | "creates" |
+  "creation_chart" | "creator" | "deferred" | "delta" |
+  "description" | "dictionary" | "dynamic_diagram" | "effective" |
+  "end" | "ensure" | "event" | "event_chart" | "exists" |
+  "explanation" | "false" | "feature" | "for_all" | "incoming" |
+  "indexing" | "inherit" | "interfaced" | "invariant" | "involves" |
+  "it_holds" | "member_of" | "nameless" | "not" | "object" |
+  "object_group" | "object_stack" | "old" | "or" | "outgoing" |
+  "part" | "persistent" | "query" | "redefined" | "require" |
+  "reused" | "root" | "scenario" | "scenario_chart" |
   "static_diagram" | "such_that" | "system_chart" | "true" | "xor"
 
 @key = @punct | @keywords

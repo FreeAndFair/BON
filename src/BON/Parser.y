@@ -939,7 +939,7 @@ dynamic_component :: { DynamicComponent }
   | object_group         { ObjectGroup $1 }
   | object_stack         { ObjectStack $1 }
   | object               { ObjectInstance $1 }
-  --FIXME | message_relation     { $1 }
+  | message_relation     { MessageRelation $1 }
 
 ------------------------------------------------
 
@@ -984,36 +984,10 @@ object_stack :: { ObjectStack }
 object :: { ObjectInstance }
   : 'object' object_name comment
   { MkObjectInstance $2 $3 }
-{-----------
-------------------------------------------------
 
-message_relation  :  caller 'calls' receiver (message_label)?
-;
-
-caller  :  dynamic_ref
-;
-
-receiver  :  dynamic_ref
-;
-
---TODO - the below change fixes a conflict, and allows the same grammar
---...but we lose some information here as to what the dynamic ref is.
---Can this be fixed at a later point when going over the AST?
---dynamic_ref  :  (group_prefix)* dynamic_component_name
-dynamic_ref  :  extended_id ('.' extended_id)*
-;
-
---group_prefix  :  group_name '.'
---              ;
-
---TODO - similarly this rule matches the same grammar, but will we need to know
--- which we're actually matching?
---dynamic_component_name  :   object_name | group_name
-dynamic_component_name  :
-   (IDENTIFIER ('.' extended_id)?)
- | INTEGER
-;
--}
+message_relation :: { MessageRelation }
+  : object_name 'calls' object_name opt(MANIFEST_STRING)
+  { MkMessageRelation $1 $3 $4 }
 
 object_name :: { ObjectName }
   : class_name                 { MkObjectName $1 Nothing }
