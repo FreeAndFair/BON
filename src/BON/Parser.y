@@ -24,6 +24,7 @@ import BON.Parser.Monad
   'Result'           { TKey "Result" }
   'action'           { TKey "action" }
   'and'              { TKey "and" }
+  'calls'            { TKey "calls" }
   'class'            { TKey "class" }
   'class_chart'      { TKey "class_chart" }
   'client'           { TKey "client" }
