@@ -3,7 +3,7 @@ BON
 
 This repository contains snapshots of several BON-related development tools.
 
- * **bonc** is a parser and typechecker for the textual Business Object Notation (BON).
+ * **BONc** is a parser and typechecker for the textual Business Object Notation (BON).
  * **BON_IDE** is an experimental Eclipse plugin for editing graphical BON.
  * **beetlz** is a refinement checker, architecture extraction, and specification generator to/from BON and JML-annotated Java.
  * **grammars** contains experiments in supporting type-logical grammar based parsing of informal BON specs.
