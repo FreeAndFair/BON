@@ -1,0 +1,15 @@
+[submodule "BONc"]
+	path = BONc
+	url = git@github.com:FreeAndFair/BONc.git
+[submodule "Beetlz"]
+	path = Beetlz
+	url = git@github.com:FreeAndFair/Beetlz.git
+[submodule "BONSemanticPropertiesPlugin"]
+	path = BONSemanticPropertiesPlugin
+	url = git@github.com:FreeAndFair/BONSemanticPropertiesPlugin.git
+[submodule "BON_IDE"]
+	path = BON_IDE
+	url = git@github.com:FreeAndFair/BON_IDE.git
+[submodule "iBONText"]
+	path = iBONText
+	url = git@github.com:FreeAndFair/iBONText.git
